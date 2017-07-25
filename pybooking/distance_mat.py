@@ -73,6 +73,10 @@ class CityAndInterests(object):
         self.dist_mat_filename = self._get_filename("dist")
         self.plan_filename = self._get_filename("plan")
 
+    @property
+    def plan(self):
+        return pd.read_csv(self.plan_filename, index_col=0)
+
     @util.lazy_property
     def info(self):
         if path.exists(self.info_filename):
@@ -81,7 +85,10 @@ class CityAndInterests(object):
 
     @util.lazy_property
     def distance_matrix(self):
-        return pd.read_csv(self.dist_mat_filename, index_col=0)
+        df = pd.read_csv(self.dist_mat_filename, index_col=0)
+        df.index = df.index.astype(int)
+        df.columns = df.columns.astype(int)
+        return df
 
     def _get_filename(self, prefix=None):
         city_name = self.city if prefix is None else prefix + "-" + self.city
@@ -122,10 +129,10 @@ class DistanceMatrix(CityAndInterests):
     def full_dist_matrix(self):
         # Fill the symmetric matrix
         n = self.n_interests
-        mat = self.distance_matrix.copy()
+        mat = self.distance_matrix
         mat += np.eye(n) * DistanceClient.max_transit_time
         for i in range(n):
-            mat.iloc[i, i + 1:] = mat.iloc[i + 1:, i]
+            mat.iloc[i, i + 1:] = mat.iloc[i + 1:, i].values
         return mat
 
     @property
@@ -134,21 +141,21 @@ class DistanceMatrix(CityAndInterests):
 
     def plan_the_trip(self):
         self.plans_ = []
-        min_pairs = self.full_dist_matrix.idxmin()
+        df_dist = self.full_dist_matrix.copy()
+        min_pairs = df_dist.idxmin()
+        print self.full_dist_matrix
         min_pairs.index = min_pairs.index.astype(int)
+        print min_pairs
         rest_candidates = set(range(self.n_interests))
-        for a, b in min_pairs.iteritems():
-            if {a, b} <= rest_candidates and len(self.plans_) < self.n_days:
-                self.plans_.append({a, b})
-                rest_candidates = rest_candidates.difference({a, b})
-                continue
-            elif {a, b}.difference(rest_candidates):
-                continue
-            to_search = a if a in rest_candidates else b
-            rest_candidates.remove(to_search)
-            self._add_the_site(to_search)
-
+        for i in range(self.n_days):
+            col = df_dist.min().idxmin()
+            row = df_dist[col].idxmin()
+            self.plans_.append({row, col})
+            rest_candidates = rest_candidates.difference({row, col})
+            df_dist = df_dist.drop([row, col], 0).drop([row, col], 1)
+        print rest_candidates
         while rest_candidates:
+            print rest_candidates
             to_search = rest_candidates.pop()
             self._add_the_site(to_search)
         df = self.info.copy()
@@ -170,6 +177,8 @@ class DistanceMatrix(CityAndInterests):
                 min_duration = current_min
         if min_day > -1:
             self.plans_[min_day].add(site)
+        else:
+            self.plans_.append({site})
 
 
 if __name__ == "__main__":
