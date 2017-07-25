@@ -9,44 +9,17 @@ import util
 
 class DistanceClient(object):
     max_transit_time = 2 * 60 * 60  # seconds
-    visits_per_day = 2.5
 
     def __init__(self, n_days=5):
         self.dist_client = googlemaps.Client(util.APIKeys.distance)
         self.n_days = n_days
 
-    @property
-    def n_total_sites(self):
-        return int(self.n_days * self.visits_per_day)
-
-    def regroup_interest_sites(self, city, interest_list):
-        city_interest = CityAndInterests(city, interest_list, self.n_days)
-        filename = city_interest.info_filename
-        if path.exists(filename):
-            return pd.read_csv(filename, index_col=0)
-        n_remaining = self.n_total_sites
-        n_interest = len(interest_list)
-        n_current = int(n_remaining / n_interest)
-        res = {}
-        for i, interest in enumerate(interest_list, 1):
-            res[interest] = util.read_csv_city_interest(
-                city, interest, n_largest=n_current
-            )
-            # in case some interest is not so common nearby, we can adjust
-            # the rest
-            n_remaining -= len(res[interest])
-            if i < n_interest:
-                n_current = int(n_remaining / (n_interest - i))
-        df = pd.concat(res, names=["interest"]).reset_index()
-        df.to_csv(filename)
-        return df
-
-    def get_distance_matrix(self, city, interest_list):
+    def get_min_duration_matrix(self, city, interest_list):
         city_interest = CityAndInterests(city, interest_list, self.n_days)
         filename = city_interest.dist_mat_filename
         if path.exists(filename):
-            return pd.read_csv(filename, index_col=0)
-        df = self.regroup_interest_sites(city, interest_list)
+            return city_interest.distance_matrix
+        df = city_interest.info
         coordinates = df[["x", "y"]].values
         duration_matrices = [
             self.extract_duration_matrix(coordinates, mode)
@@ -60,7 +33,6 @@ class DistanceClient(object):
     def extract_duration_matrix(self, coordinates, mode="walking"):
         result = []
         n_len = len(coordinates)
-        print n_len
         for i, source in enumerate(coordinates[:-1]):
             res = self.get_durations(source, coordinates[i + 1:], mode)
             res = [np.NAN] * i + [0] + res
@@ -77,9 +49,9 @@ class DistanceClient(object):
         return res
 
     def get_the_plan(self, city, interest_list):
-        _ = self.regroup_interest_sites(city, interest_list)
-        _ = self.get_distance_matrix(city, interest_list)
         dist_matrix = DistanceMatrix(city, interest_list, self.n_days)
+        _ = self.get_min_duration_matrix(city, interest_list)
+
         plans = dist_matrix.plan_the_trip()
         print plans
 
@@ -94,9 +66,22 @@ class CityAndInterests(object):
         self.interest_list = interest_list
         self.n_days = n_days
 
+        # average number of sites people can visit per day
+        self.visits_per_day = 2.5
+
         self.info_filename = self._get_filename()
         self.dist_mat_filename = self._get_filename("dist")
         self.plan_filename = self._get_filename("plan")
+
+    @util.lazy_property
+    def info(self):
+        if path.exists(self.info_filename):
+            return pd.read_csv(self.info_filename, index_col=0)
+        return self.get_aggregated_interest_sites()
+
+    @util.lazy_property
+    def distance_matrix(self):
+        return pd.read_csv(self.dist_mat_filename, index_col=0)
 
     def _get_filename(self, prefix=None):
         city_name = self.city if prefix is None else prefix + "-" + self.city
@@ -105,50 +90,66 @@ class CityAndInterests(object):
             "{}-{}".format("-".join(self.interest_list), self.n_days), "csv"
         )
 
+    def get_aggregated_interest_sites(self):
+        all_sites = {
+            interest: util.read_csv_city_interest(self.city, interest)
+            for interest in self.interest_list
+        }
+        weights_by_total_popularity = {
+            k: v["rating"].sum() for k, v in all_sites.items()
+        }
+        total_popularity = sum(weights_by_total_popularity.values())
+        n_sites_total = self.n_days * self.visits_per_day
+        weights_by_total_popularity = {
+           k: max(int(v / total_popularity * n_sites_total), 1)
+           for k, v in weights_by_total_popularity.items()
+        }
+        result = pd.concat(
+            {k: all_sites[k].iloc[:n] for k, n
+             in weights_by_total_popularity.items()}, names=["interest"]
+        ).reset_index()
+        result.to_csv(self.info_filename)
+        return result
+
 
 class DistanceMatrix(CityAndInterests):
     def __init__(self, city, interest_list, n_days):
         super(DistanceMatrix, self).__init__(city, interest_list, n_days)
-        self.info = pd.read_csv(self.info_filename, index_col=0)
-        self.data = pd.read_csv(self.dist_mat_filename, index_col=0)
-        self.max_visits_per_day = int(DistanceClient.visits_per_day) + 1
-        self._data_matrix = None
+        self.max_visits_per_day = int(self.visits_per_day) + 1
         self.plans_ = None
 
-    @property
-    def data_matrix(self):
-        if self._data_matrix is None:
-            n = self.n_interests
-            mat = self.data
-            mat += np.eye(n) * DistanceClient.max_transit_time
-            for i in range(n):
-                mat.iloc[i, i + 1:] = self.data.iloc[i + 1:, i]
-            self._data_matrix = mat
-        return self._data_matrix
+    @util.lazy_property
+    def full_dist_matrix(self):
+        # Fill the symmetric matrix
+        n = self.n_interests
+        mat = self.distance_matrix.copy()
+        mat += np.eye(n) * DistanceClient.max_transit_time
+        for i in range(n):
+            mat.iloc[i, i + 1:] = mat.iloc[i + 1:, i]
+        return mat
 
     @property
     def n_interests(self):
-        return len(self.data)
+        return len(self.distance_matrix)
 
     def plan_the_trip(self):
         self.plans_ = []
-        mat = self.data_matrix
-        min_pairs = mat.idxmin()
+        min_pairs = self.full_dist_matrix.idxmin()
         min_pairs.index = min_pairs.index.astype(int)
-        remaining_cands = set(range(self.n_interests))
+        rest_candidates = set(range(self.n_interests))
         for a, b in min_pairs.iteritems():
-            if {a, b} <= remaining_cands and len(self.plans_) < self.n_days:
+            if {a, b} <= rest_candidates and len(self.plans_) < self.n_days:
                 self.plans_.append({a, b})
-                remaining_cands = remaining_cands.difference({a, b})
+                rest_candidates = rest_candidates.difference({a, b})
                 continue
-            elif {a, b}.difference(remaining_cands):
+            elif {a, b}.difference(rest_candidates):
                 continue
-            to_search = a if a in remaining_cands else b
-            remaining_cands.remove(to_search)
+            to_search = a if a in rest_candidates else b
+            rest_candidates.remove(to_search)
             self._add_the_site(to_search)
 
-        while remaining_cands:
-            to_search = remaining_cands.pop()
+        while rest_candidates:
+            to_search = rest_candidates.pop()
             self._add_the_site(to_search)
         df = self.info.copy()
         df["day_plan"] = -1
@@ -158,10 +159,10 @@ class DistanceMatrix(CityAndInterests):
         return self.plans_
 
     def _add_the_site(self, site):
-        dist_mat = self.data_matrix.values
+        dist_mat = self.full_dist_matrix.values
         min_day, min_duration = -1, DistanceClient.max_transit_time
         for i, day_plan in enumerate(self.plans_):
-            if len(day_plan) >= self.max_visits_per_day:
+            if len(day_plan) == self.max_visits_per_day:
                 continue
             current_min = min([dist_mat[site, p] for p in day_plan])
             if current_min < min_duration:
@@ -169,6 +170,7 @@ class DistanceMatrix(CityAndInterests):
                 min_duration = current_min
         if min_day > -1:
             self.plans_[min_day].add(site)
+
 
 if __name__ == "__main__":
     # python pybooking/distance_mat.py Paris outdoor_activity,museum 3
