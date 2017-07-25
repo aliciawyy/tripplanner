@@ -20,9 +20,8 @@ class DistanceClient(object):
         return int(self.n_days * self.visits_per_day)
 
     def regroup_interest_sites(self, city, interest_list):
-        filename = util.get_dump_filename(
-            city, "-".join(interest_list), ext="csv"
-        )
+        city_interest = CityAndInterests(city, interest_list)
+        filename = city_interest.info_filename
         if path.exists(filename):
             return pd.read_csv(filename, index_col=0)
         n_remaining = self.n_total_sites
@@ -43,9 +42,8 @@ class DistanceClient(object):
         return df
 
     def get_distance_matrix(self, city, interest_list):
-        filename = util.get_dump_filename(
-            'dist-' + city, "-".join(interest_list), ext="csv"
-        )
+        city_interest = CityAndInterests(city, interest_list)
+        filename = city_interest.dist_mat_filename
         if path.exists(filename):
             return pd.read_csv(filename, index_col=0)
         df = self.regroup_interest_sites(city, interest_list)
@@ -90,18 +88,27 @@ class DistanceClient(object):
         return duration.get("value", self.max_transit_time)
 
 
-class DistanceMatrix(object):
-    def __init__(self, city, interest_list, n_days):
+class CityAndInterests(object):
+    def __init__(self, city, interest_list):
         self.city = city
         self.interest_list = interest_list
-        filename_info = util.get_dump_filename(
-            city, "-".join(interest_list), ext="csv"
+
+        self.info_filename = self._get_filename()
+        self.dist_mat_filename = self._get_filename("dist")
+        self.plan_filename = self._get_filename("plan")
+
+    def _get_filename(self, prefix=None):
+        city_name = self.city if prefix is None else prefix + "-" + self.city
+        return util.get_dump_filename(
+            city_name, "-".join(self.interest_list), "csv"
         )
-        self.info = pd.read_csv(filename_info, index_col=0)
-        filename_data = util.get_dump_filename(
-            'dist-' + city, "-".join(interest_list), ext="csv"
-        )
-        self.data = pd.read_csv(filename_data, index_col=0)
+
+
+class DistanceMatrix(CityAndInterests):
+    def __init__(self, city, interest_list, n_days):
+        super(DistanceMatrix, self).__init__(city, interest_list)
+        self.info = pd.read_csv(self.info_filename, index_col=0)
+        self.data = pd.read_csv(self.dist_mat_filename, index_col=0)
         self.n_days = n_days
         self.max_visits_per_day = int(DistanceClient.visits_per_day) + 1
         self._data_matrix = None
@@ -169,6 +176,6 @@ if __name__ == "__main__":
     # python pybooking/distance_mat.py Paris outdoor_activity,museum 3
     city0 = sys.argv[1]
     interest_list0 = sys.argv[2].split(",")
-    n_days = int(sys.argv[3])
-    cl = DistanceClient(n_days)
+    n_days0 = int(sys.argv[3])
+    cl = DistanceClient(n_days0)
     cl.get_the_plan(city0, interest_list0)

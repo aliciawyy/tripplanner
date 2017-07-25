@@ -46,3 +46,15 @@ def read_csv_city_interest(city, interest, sort_by="rating", n_largest=10):
         get_dump_filename(city, interest, "csv"), index_col='name'
     )
     return df.sort_values(sort_by, ascending=False).iloc[:n_largest]
+
+
+def lazy_property(fn):
+    """Decorator that makes a property lazy-evaluated."""
+    attr_name = '_lazy_' + fn.__name__
+
+    @property
+    def _lazy_property(self):
+        if not hasattr(self, attr_name):
+            setattr(self, attr_name, fn(self))
+        return getattr(self, attr_name)
+    return _lazy_property
