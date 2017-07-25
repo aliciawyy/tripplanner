@@ -60,12 +60,12 @@ namespace BookingWebApp.Controllers
         {
             var placeFileName = place.Replace(',', '-');
 			//python pybooking/distance_mat.py Paris outdoor_activity,museum
-			if (!System.IO.File.Exists(@"../../output/" + $"plan-{cityName}_{placeFileName}.csv"))
+            if (!System.IO.File.Exists(@"../../output/" + $"plan-{cityName}_{placeFileName}-{number}.csv"))
 			{
                 Ultility.RunCMD("../../pybooking/distance_mat.py", $"{cityName} {place} {number}");
 			}
 
-            var list = GetActivityFromCSV(@"../../output/" + $"plan-{cityName}_{placeFileName}.csv", 0).ToArray();
+            var list = GetActivityFromCSV(@"../../output/" + $"plan-{cityName}_{placeFileName}-{number}.csv", 0).ToArray();
 			return list;
 		}
         public Activity[] GetActivities(string cityName, string place, int number)
