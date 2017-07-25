@@ -13,10 +13,20 @@ namespace BookingWebApp.Controllers
 
     public class HomeController : Controller
     {
-        public ActionResult Test()
+        public ActionResult TripPlanner()
         {
             return Content(System.IO.File.ReadAllText(@"../../googlemapsample/tripplanner.html"));
         }
+
+        public ActionResult TestView()
+        {
+            return View("../Views/Home/index");
+		}
+
+        public ActionResult PlanTrip()
+        {
+            return Content(System.IO.File.ReadAllText(@"../../googlemapsample/tripplanner.html"));
+		}
         public JsonResult Index()
         {
             var mvcName = typeof(Controller).Assembly.GetName();
