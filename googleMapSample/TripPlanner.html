@@ -77,11 +77,11 @@
       }
       function loadPlace(cityName, type){
         $.ajax({
-          url: 'http://localhost:8080/home/GetPlans',
+          url: 'http://ca65a989.ngrok.io/home/GetPlans',
           data: 'cityName='+cityName+'&places='+interest&'&duration='+duration,
           success: function( data ) {
             for (day=0;day<data.length;day++)
-            for (i=0;i<day.length;i++)
+            for (i=0;i<data[day].length;i++)
             addPlace(data[day][i].Id);
           }
         });
