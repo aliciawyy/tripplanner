@@ -166,8 +166,10 @@ class DistanceMatrix(object):
             self.plans_[min_day].add(site)
 
 if __name__ == "__main__":
-    cl = DistanceClient()
 
+    # python pybooking/distance_mat.py Paris outdoor_activity,museum 3
     city0 = sys.argv[1]
     interest_list0 = sys.argv[2].split(",")
+    n_days = int(sys.argv[3])
+    cl = DistanceClient(n_days)
     cl.get_the_plan(city0, interest_list0)
