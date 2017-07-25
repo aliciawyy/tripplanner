@@ -1,7 +1,7 @@
 from os import path
 
 import pandas as pd
-
+import googlemaps
 
 OUTPUT_DIR = path.join(path.dirname(__file__), "..", "output")
 
@@ -10,6 +10,15 @@ class APIKeys(object):
     geocode = "AIzaSyBmkF_p89N8DjBO77oJ-QOUFebB3rQwG30"
     place = "AIzaSyDqUsNug8hrxQyTyk14y1euWlq5SFZGtRs"
     distance = "AIzaSyDqUsNug8hrxQyTyk14y1euWlq5SFZGtRs"
+
+
+class GeoClient(object):
+    client = googlemaps.Client(APIKeys.geocode)
+
+    @classmethod
+    def get_location(cls, city):
+        result = cls.client.geocode(city)
+        return get_coordinates(result[0])
 
 
 def get_coordinates(info):
