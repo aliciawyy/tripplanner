@@ -76,7 +76,7 @@
       }
       function loadPlace(cityName, type){
         $.ajax({
-          url: 'http://ca65a989.ngrok.io/home/GetPlaces',
+          url: 'https://ca65a989.ngrok.io/home/GetPlaces',
           data: 'cityName='+cityName+'&place='+interest,
           success: function( data ) {
             for (i=0;i<data.length;i++)

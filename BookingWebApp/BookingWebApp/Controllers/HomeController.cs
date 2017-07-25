@@ -13,7 +13,10 @@ namespace BookingWebApp.Controllers
 
     public class HomeController : Controller
     {
-        
+        public ActionResult Test()
+        {
+            return Content(System.IO.File.ReadAllText(@"../../googlemapsample/tripplanner.html"));
+        }
         public JsonResult Index()
         {
             var mvcName = typeof(Controller).Assembly.GetName();
@@ -69,7 +72,7 @@ namespace BookingWebApp.Controllers
 		public Activity[] GetActivitiesCSV(string cityName, string place, int number)
 		{
 			if (string.IsNullOrEmpty(cityName) || string.IsNullOrEmpty((place))) return null;
-            if (!System.IO.File.Exists(@"../../output/" + $"{cityName}_{place}.csv") && true)
+            if (!System.IO.File.Exists(@"../../output/" + $"{cityName}_{place}.csv"))
 			{
 				Ultility.RunCMD("../../pybooking/gmap.py", $"{cityName} {place}");
 			}
