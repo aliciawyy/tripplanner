@@ -134,8 +134,7 @@ class DistanceMatrix(CityAndInterests):
 
     def plan_the_trip(self):
         self.plans_ = []
-        mat = self.full_dist_matrix
-        min_pairs = mat.idxmin()
+        min_pairs = self.full_dist_matrix.idxmin()
         min_pairs.index = min_pairs.index.astype(int)
         remaining_cands = set(range(self.n_interests))
         for a, b in min_pairs.iteritems():
@@ -163,7 +162,7 @@ class DistanceMatrix(CityAndInterests):
         dist_mat = self.full_dist_matrix.values
         min_day, min_duration = -1, DistanceClient.max_transit_time
         for i, day_plan in enumerate(self.plans_):
-            if len(day_plan) >= self.max_visits_per_day:
+            if len(day_plan) == self.max_visits_per_day:
                 continue
             current_min = min([dist_mat[site, p] for p in day_plan])
             if current_min < min_duration:
