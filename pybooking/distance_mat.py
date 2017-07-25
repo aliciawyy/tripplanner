@@ -153,9 +153,7 @@ class DistanceMatrix(CityAndInterests):
             self.plans_.append({row, col})
             rest_candidates = rest_candidates.difference({row, col})
             df_dist = df_dist.drop([row, col], 0).drop([row, col], 1)
-        print rest_candidates
         while rest_candidates:
-            print rest_candidates
             to_search = rest_candidates.pop()
             self._add_the_site(to_search)
         df = self.info.copy()
@@ -175,10 +173,7 @@ class DistanceMatrix(CityAndInterests):
             if current_min < min_duration:
                 min_day = i
                 min_duration = current_min
-        if min_day > -1:
-            self.plans_[min_day].add(site)
-        else:
-            self.plans_.append({site})
+        self.plans_[min_day].add(site)
 
 
 if __name__ == "__main__":
