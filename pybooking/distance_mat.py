@@ -1,3 +1,4 @@
+from os import path
 import pandas as pd
 import numpy as np
 import googlemaps
@@ -17,6 +18,9 @@ class DistanceClient(object):
         return self.n_days * self.visits_per_day
 
     def _regroup_interest_sites(self, city, interest_list):
+        filename = util.get_dump_filename(
+            'Paris', "-".join(interest_list), ext="csv"
+        )
         n_remaining = self.n_total_sites
         n_interest = len(interest_list)
         n_current = int(n_remaining / n_interest)
@@ -31,20 +35,25 @@ class DistanceClient(object):
             if i < n_interest:
                 n_current = int(n_remaining / (n_interest - i))
         df = pd.concat(res, names=["interest"]).reset_index()
+        df.to_csv(filename)
         return df
 
     def get_distance_matrix(self, city, interest_list):
+        filename = util.get_dump_filename(
+            'dist-Paris', "-".join(interest_list), ext="csv"
+        )
         df = self._regroup_interest_sites(city, interest_list)
-        labels = df["interest"]
-        print df[['name', "interest"]]
+        if path.exists(filename):
+            return pd.read_csv(filename, index_col=0)
+
         coordinates = df[["x", "y"]].values
         duration_matrices = [
             self.extract_duration_matrix(coordinates, mode)
             for mode in ["walking", 'transit']
         ]
         df0_list = map(pd.DataFrame, duration_matrices)
-        df0 = np.minimum(df0_list[0], df0_list[1])
-        df0.to_csv("dist_matrix.csv")
+        df0 = np.minimum(df0_list[0], df0_list[1]).T
+        df0.to_csv(filename)
         print df0
 
     def extract_duration_matrix(self, coordinates, mode="walking"):
