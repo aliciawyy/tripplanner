@@ -14,7 +14,7 @@ class DistanceClient(object):
         self.dist_client = googlemaps.Client(util.APIKeys.distance)
         self.n_days = n_days
 
-    def get_distance_matrix(self, city, interest_list):
+    def get_min_duration_matrix(self, city, interest_list):
         city_interest = CityAndInterests(city, interest_list, self.n_days)
         filename = city_interest.dist_mat_filename
         if path.exists(filename):
@@ -50,7 +50,7 @@ class DistanceClient(object):
 
     def get_the_plan(self, city, interest_list):
         dist_matrix = DistanceMatrix(city, interest_list, self.n_days)
-        _ = self.get_distance_matrix(city, interest_list)
+        _ = self.get_min_duration_matrix(city, interest_list)
 
         plans = dist_matrix.plan_the_trip()
         print plans
@@ -136,20 +136,20 @@ class DistanceMatrix(CityAndInterests):
         self.plans_ = []
         min_pairs = self.full_dist_matrix.idxmin()
         min_pairs.index = min_pairs.index.astype(int)
-        remaining_cands = set(range(self.n_interests))
+        rest_candidates = set(range(self.n_interests))
         for a, b in min_pairs.iteritems():
-            if {a, b} <= remaining_cands and len(self.plans_) < self.n_days:
+            if {a, b} <= rest_candidates and len(self.plans_) < self.n_days:
                 self.plans_.append({a, b})
-                remaining_cands = remaining_cands.difference({a, b})
+                rest_candidates = rest_candidates.difference({a, b})
                 continue
-            elif {a, b}.difference(remaining_cands):
+            elif {a, b}.difference(rest_candidates):
                 continue
-            to_search = a if a in remaining_cands else b
-            remaining_cands.remove(to_search)
+            to_search = a if a in rest_candidates else b
+            rest_candidates.remove(to_search)
             self._add_the_site(to_search)
 
-        while remaining_cands:
-            to_search = remaining_cands.pop()
+        while rest_candidates:
+            to_search = rest_candidates.pop()
             self._add_the_site(to_search)
         df = self.info.copy()
         df["day_plan"] = -1
