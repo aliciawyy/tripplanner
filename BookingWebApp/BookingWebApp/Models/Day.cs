@@ -6,5 +6,7 @@ namespace BookingWebApp.Models
         public Day()
         {
         }
+        public int NumberOfActivity { get; set; }
+        public System.Collections.Generic.List<Activity> Activities { get; set; }
     }
 }
