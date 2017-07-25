@@ -38,6 +38,7 @@ class PlaceClient(object):
             city_location, df[["x", "y"]].values, mode='transit'
         )
         df = df[df["transit_time"] < dist_client.max_transit_time]
+        df = df.sort_values("rating", ascending=False)
         df.to_csv(filename_csv, index_label="name")
 
     def _extract_one_info(self, info):
