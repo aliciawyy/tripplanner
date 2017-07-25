@@ -1,6 +1,7 @@
 import sys
 import json
 import googlemaps
+import pandas as pd
 
 import util
 
@@ -25,6 +26,29 @@ class PlaceClient(object):
         )
         filename_json = util.get_dump_filename(city, interest)
         json.dump(all_places, open(filename_json, "w"))
+        filename_csv = util.get_dump_filename(city, interest, "csv")
+        self.extract_info_to_csv(all_places, filename_csv)
+
+    @staticmethod
+    def extract_info_to_csv(all_places, filename_csv):
+        place_dict = {}
+        for info in all_places:
+            res = {"id": info["place_id"]}
+            coord = util.get_coordinates(info)
+            res["x"] = coord[0]
+            res["y"] = coord[1]
+            res["rating"] = info.get("rating", 2.5)
+            photos = info.get("photos", None)
+            if photos:
+                res["photo_ref"] = photos[0]["photo_reference"]
+            place_types = info.get("types", None)
+            if place_types:
+                res["place_types"] = "|".join(place_types)
+            name = info["name"].encode('utf-8').strip()
+            place_dict[name] = res
+
+        df = pd.DataFrame.from_dict(place_dict, orient='index')
+        df.to_csv(filename_csv, index_label="name")
 
 
 if __name__ == "__main__":
