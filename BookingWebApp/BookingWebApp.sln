@@ -1,0 +1,23 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingWebApp", "BookingWebApp\BookingWebApp.csproj", "{7A41EEF4-09E4-40B5-ACBA-44F28C06834B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingWebApp.Tests", "BookingWebApp.Tests\BookingWebApp.Tests.csproj", "{26016F29-C496-4B7A-865F-4DB5C8A27CAC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7A41EEF4-09E4-40B5-ACBA-44F28C06834B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A41EEF4-09E4-40B5-ACBA-44F28C06834B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A41EEF4-09E4-40B5-ACBA-44F28C06834B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A41EEF4-09E4-40B5-ACBA-44F28C06834B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26016F29-C496-4B7A-865F-4DB5C8A27CAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26016F29-C496-4B7A-865F-4DB5C8A27CAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26016F29-C496-4B7A-865F-4DB5C8A27CAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26016F29-C496-4B7A-865F-4DB5C8A27CAC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
