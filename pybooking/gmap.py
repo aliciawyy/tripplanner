@@ -1,15 +1,8 @@
-from os import path
 import sys
 import json
-import operator
 import googlemaps
 
 import util
-
-
-def _get_coordinates(info):
-    xy = info['geometry']['location']
-    return xy['lat'], xy["lng"]
 
 
 class PlaceClient(object):
@@ -20,25 +13,22 @@ class PlaceClient(object):
 
     def get_location(self, city):
         result = self.client_geo.geocode(city)
-        return _get_coordinates(result[0])
+        return util.get_coordinates(result[0])
 
-    def places_nearby(self, city, place_type):
+    def places_nearby(self, city, interest):
         location = self.get_location(city)
         result = self.client_place.places(
-            place_type, location=location, radius=self.default_radius
+            interest, location=location, radius=self.default_radius
         )
         all_places = sorted(
-            result['results'], key=operator.itemgetter('rating'), reverse=True
+            result['results'], key=lambda p: p.get('rating', 2.5), reverse=True
         )
-        filename = path.join(
-            util.OUTPUT_DIR,
-            '{}_{}.json'.format(city, place_type)
-        )
-        json.dump(all_places, open(filename, "w"))
+        filename_json = util.get_dump_filename(city, interest)
+        json.dump(all_places, open(filename_json, "w"))
 
 
 if __name__ == "__main__":
     # python pybooking/gmap.py Paris museum
     client = PlaceClient()
-    city, place_type0 = sys.argv[1:]
-    client.places_nearby(city, place_type0)
+    city0, place_type0 = sys.argv[1:]
+    client.places_nearby(city0, place_type0)
