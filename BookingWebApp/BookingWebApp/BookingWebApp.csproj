@@ -101,6 +101,21 @@
     <Content Include="Web.config" />
     <Content Include="Global.asax" />
     <Content Include="packages.config" />
+    <Content Include="dist\5e174688aecd0482b717dc67306d2c97.png" />
+    <Content Include="dist\bundle.js" />
+    <Content Include="dist\index.html" />
+    <Content Include="dist\map.html" />
+    <Content Include="dist\style.css" />
+    <Content Include="dist\material-datepicker\material-datepicker.css" />
+    <Content Include="assets\gateway-in-amsterdam-big-and-barcode-architecture-news_dezeen_herob.jpg" />
+    <Content Include="assets\i_back.png" />
+    <Content Include="assets\i_calendar.png" />
+    <Content Include="assets\i_museum_w.png" />
+    <Content Include="assets\i_relax.png" />
+    <Content Include="assets\i_shop.png" />
+    <Content Include="assets\i_shop_w.png" />
+    <Content Include="Views\Home\PlanTrip.cshtml" />
+    <Content Include="Views\Home\map.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\gmap.py" />

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Plan my trip</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/rome/2.1.22/rome.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.js"></script>
+	<!-- <script src="material-datetime-picker.js" charset="utf-8"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>  
+     
+<link href="style.css" rel="stylesheet"></head>
+<body>
+<div class="page">
+	<div class="form-container">
+		<form action="/get-data" method="get" id="search-form">
+			<h2>Plan my trip</h2>
+			<p>Create a customizable itinerary by selecting your interests. </p>
+			<label>Destination</label>
+			<input type="text"  name="city">
+			<label>Check-in</label>
+			<input type="text"  class="datepicker" name="check-in">
+			<label>Check-out</label>
+			<input type="text"  class="datepicker" name="check-out">
+			
+
+			<label>Interests</label>
+			<p>Don't be shy, pick as many as you like.</p>
+			<label class="btn">
+				<input type="checkbox" name="places" id="options" value="museum" autocomplete="off" checked>Museums
+			</label>
+			<label class="btn">
+				<input type="checkbox" name="places" id="option2" autocomplete="off"> Outdoor activities
+			</label>
+			<label class="btn">
+				<input type="checkbox" name="places" id="option3" autocomplete="off"> Nightlife
+			</label>
+			<label class="btn">
+				<input type="checkbox" name="places" id="option4" autocomplete="off"> Shopping
+			</label>
+
+			<input type="submit" text="Create a Plan">
+		</form>
+	</div>
+</div>
+</div>
+  <div id="app"></div>
+  <script async defer  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJe89WAZmJd1aRIUdmlAZBhG5JRx6Np40&libraries=places&callback=initMap"></script>
+<script type="text/javascript" src="bundle.js"></script></body>
+</html>

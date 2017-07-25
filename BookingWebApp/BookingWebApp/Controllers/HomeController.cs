@@ -23,9 +23,16 @@ namespace BookingWebApp.Controllers
             return View("../Views/Home/index");
 		}
 
-        public ActionResult PlanTrip()
+        public ActionResult PlanTripView()
         {
-            return Content(System.IO.File.ReadAllText(@"../../googlemapsample/tripplanner.html"));
+            //return Content(System.IO.File.ReadAllText(@"./dist/index.html"));
+            return View(@"PlanTrip");
+        }
+
+		public ActionResult GetMaps()
+		{
+			//return Content(System.IO.File.ReadAllText(@"./dist/index.html"));
+			return View(@"map");
 		}
         public JsonResult Index()
         {

@@ -37,7 +37,7 @@
       // parameter when you first load the API. For example:
       var map;
       var city = getUrlParameter('city');
-      var interest = getUrlParameter('interest');
+      var interest = getUrlParameter('places');
       var duration = getUrlParameter('duration');
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
@@ -77,7 +77,7 @@
       }
       function loadPlace(cityName, type){
         $.ajax({
-          url: 'http://ca65a989.ngrok.io/home/GetPlans',
+          url: '/home/GetPlans',
           data: 'cityName='+cityName+'&places='+interest+'&duration='+duration,
           success: function( data ) {
             for (day=0;day<data.length;day++)
@@ -112,7 +112,7 @@
   <body>
     <div id="map"></div>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA7VwQosboXtBNwRVQVW2ATx6EsjuK9o_M&libraries=places&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYtV0LtK9nxpMXevzNlZngmHNV11e8AkI&libraries=places&callback=initMap">
     </script>
   </body>
 </html>
