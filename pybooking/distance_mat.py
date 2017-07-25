@@ -49,9 +49,11 @@ class DistanceClient(object):
 
     def extract_duration_matrix(self, coordinates, mode="walking"):
         result = []
+        n_len = len(coordinates)
+        print n_len
         for i, source in enumerate(coordinates[:-1]):
             res = self.get_durations(source, coordinates[i + 1:], mode)
-            res = res[::-1] + [0] + res
+            res = [np.NAN] * i + [0] + res
             result.append(res)
         return result
 
