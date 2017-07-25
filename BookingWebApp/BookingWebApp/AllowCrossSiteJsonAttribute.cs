@@ -8,6 +8,7 @@ namespace BookingWebApp
 		public override void OnActionExecuting(System.Web.Mvc.ActionExecutingContext filterContext)
 		{
 			filterContext.RequestContext.HttpContext.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            filterContext.RequestContext.HttpContext.Response.AddHeader("Access-Control-Allow-Methods","*");
 			base.OnActionExecuting(filterContext);
 		}
 	}
