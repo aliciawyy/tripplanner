@@ -17,10 +17,12 @@ class DistanceClient(object):
     def n_total_sites(self):
         return self.n_days * self.visits_per_day
 
-    def _regroup_interest_sites(self, city, interest_list):
+    def regroup_interest_sites(self, city, interest_list):
         filename = util.get_dump_filename(
-            'Paris', "-".join(interest_list), ext="csv"
+            city, "-".join(interest_list), ext="csv"
         )
+        if path.exists(filename):
+            return pd.read_csv(filename, index_col=0)
         n_remaining = self.n_total_sites
         n_interest = len(interest_list)
         n_current = int(n_remaining / n_interest)
@@ -40,12 +42,11 @@ class DistanceClient(object):
 
     def get_distance_matrix(self, city, interest_list):
         filename = util.get_dump_filename(
-            'dist-Paris', "-".join(interest_list), ext="csv"
+            'dist-' + city, "-".join(interest_list), ext="csv"
         )
-        df = self._regroup_interest_sites(city, interest_list)
         if path.exists(filename):
             return pd.read_csv(filename, index_col=0)
-
+        df = self.regroup_interest_sites(city, interest_list)
         coordinates = df[["x", "y"]].values
         duration_matrices = [
             self.extract_duration_matrix(coordinates, mode)
@@ -64,6 +65,7 @@ class DistanceClient(object):
             res = self.get_durations(source, coordinates[i + 1:], mode)
             res = [np.NAN] * i + [0] + res
             result.append(res)
+        result.append([np.NAN] * (n_len - 1) + [0])
         return result
 
     def get_durations(self, source, destinations, mode="walking"):
