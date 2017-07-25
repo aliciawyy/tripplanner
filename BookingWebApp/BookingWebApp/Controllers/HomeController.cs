@@ -118,7 +118,7 @@ namespace BookingWebApp.Controllers
 				parser.TextFieldType = FieldType.Delimited;
 				parser.SetDelimiters(",");
                 var headers = parser.ReadFields();
-                int interestColumn=0, nameColumn=0, ratingColumn=0, photoColumn=0, typeColumn=0, xColumn=0, yColumn=0, idColumn=0, dayColumn=0;
+                int interestColumn=-1, nameColumn=0, ratingColumn=0, photoColumn=0, typeColumn=0, xColumn=0, yColumn=0, idColumn=0, dayColumn=-1;
                 for (int i = 0; i < headers.Count(); i++){
                     switch(headers[i]){
                         case "interest": interestColumn = i;break;
@@ -129,6 +129,7 @@ namespace BookingWebApp.Controllers
                         case "x":xColumn = i;break;
                         case "id":idColumn = i;break;
                         case "day_plan":dayColumn = i;break;
+                        case "place_types": if (interestColumn < 0) interestColumn = i;break;
                     }                   
                 }
 				//interest,name,rating,photo_ref,place_types,y,x,id,transit_time,day_plan
@@ -147,9 +148,10 @@ namespace BookingWebApp.Controllers
                         Longitude = fields[yColumn],
                         Latitude = fields[xColumn],
                         Type = fields[interestColumn],
-                        Id = fields[idColumn],
-                        Day = int.Parse(fields[dayColumn])
+                        Id = fields[idColumn]
 					};
+                    if (dayColumn >0)
+                        activity.Day = int.Parse(fields[dayColumn]);
                     list.Add(activity);
 				}
 			}
