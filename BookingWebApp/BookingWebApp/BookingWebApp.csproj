@@ -90,6 +90,7 @@
     <Compile Include="Models\Trip.cs" />
     <Compile Include="Models\Day.cs" />
     <Compile Include="Ultility.cs" />
+    <Compile Include="AllowCrossSiteJsonAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Web.config" />

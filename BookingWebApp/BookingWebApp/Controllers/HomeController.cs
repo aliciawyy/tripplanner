@@ -10,6 +10,7 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace BookingWebApp.Controllers
 {
+
     public class HomeController : Controller
     {
         
@@ -37,13 +38,13 @@ namespace BookingWebApp.Controllers
             var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(list);
             return new ContentResult { Content = jsonText, ContentType = "application/json", ContentEncoding= System.Text.Encoding.UTF8 };
 		}
-
+		[AllowCrossSiteJson]
 		public ContentResult GetPlaces(string cityName, string place)
 		{
 			var places = GetActivitiesCSV(cityName, place, 20);
 			return Ultility.GetJsonContent(places);
 		}
-
+		[AllowCrossSiteJson]
 		public ContentResult GetPlans(string cityName, string places, int duration)
 		{
             //currently hard coded.
@@ -114,7 +115,8 @@ namespace BookingWebApp.Controllers
 						ImageUrl = $"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&photoreference={fields[2]}&key=AIzaSyDqUsNug8hrxQyTyk14y1euWlq5SFZGtRs",
 						Longitude = fields[4],
                         Latitude = fields[5],
-                        Type = fields[3]
+                        Type = fields[3],
+                        Id = fields[6]
 					};
 					list[i] = activity;
 				}
