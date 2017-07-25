@@ -150,14 +150,11 @@ class DistanceMatrix(CityAndInterests):
         while remaining_cands:
             to_search = remaining_cands.pop()
             self._add_the_site(to_search)
-        filename_plan = util.get_dump_filename(
-            "plan-" + self.city, "-".join(self.interest_list), ext="csv"
-        )
         df = self.info.copy()
         df["day_plan"] = -1
         for i, group in enumerate(self.plans_):
             df.ix[list(group), "day_plan"] = i
-        df.to_csv(filename_plan, index=None)
+        df.to_csv(self.plan_filename, index=None)
         return self.plans_
 
     def _add_the_site(self, site):
