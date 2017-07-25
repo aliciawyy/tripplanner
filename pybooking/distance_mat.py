@@ -20,7 +20,7 @@ class DistanceClient(object):
         return int(self.n_days * self.visits_per_day)
 
     def regroup_interest_sites(self, city, interest_list):
-        city_interest = CityAndInterests(city, interest_list)
+        city_interest = CityAndInterests(city, interest_list, self.n_days)
         filename = city_interest.info_filename
         if path.exists(filename):
             return pd.read_csv(filename, index_col=0)
@@ -42,7 +42,7 @@ class DistanceClient(object):
         return df
 
     def get_distance_matrix(self, city, interest_list):
-        city_interest = CityAndInterests(city, interest_list)
+        city_interest = CityAndInterests(city, interest_list, self.n_days)
         filename = city_interest.dist_mat_filename
         if path.exists(filename):
             return pd.read_csv(filename, index_col=0)
@@ -89,9 +89,10 @@ class DistanceClient(object):
 
 
 class CityAndInterests(object):
-    def __init__(self, city, interest_list):
+    def __init__(self, city, interest_list, n_days):
         self.city = city
         self.interest_list = interest_list
+        self.n_days = n_days
 
         self.info_filename = self._get_filename()
         self.dist_mat_filename = self._get_filename("dist")
@@ -100,16 +101,16 @@ class CityAndInterests(object):
     def _get_filename(self, prefix=None):
         city_name = self.city if prefix is None else prefix + "-" + self.city
         return util.get_dump_filename(
-            city_name, "-".join(self.interest_list), "csv"
+            city_name,
+            "{}-{}".format("-".join(self.interest_list), self.n_days), "csv"
         )
 
 
 class DistanceMatrix(CityAndInterests):
     def __init__(self, city, interest_list, n_days):
-        super(DistanceMatrix, self).__init__(city, interest_list)
+        super(DistanceMatrix, self).__init__(city, interest_list, n_days)
         self.info = pd.read_csv(self.info_filename, index_col=0)
         self.data = pd.read_csv(self.dist_mat_filename, index_col=0)
-        self.n_days = n_days
         self.max_visits_per_day = int(DistanceClient.visits_per_day) + 1
         self._data_matrix = None
         self.plans_ = None
