@@ -127,20 +127,20 @@ class DistanceMatrix(object):
         mat = self.data_matrix
         min_pairs = mat.idxmin()
         min_pairs.index = min_pairs.index.astype(int)
-        remaining_candidates = set(range(self.n_interests))
+        remaining_cands = set(range(self.n_interests))
         for a, b in min_pairs.iteritems():
-            if {a, b} <= remaining_candidates:
+            if {a, b} <= remaining_cands and len(self.plans_) < self.n_days:
                 self.plans_.append({a, b})
-                remaining_candidates = remaining_candidates.difference({a, b})
+                remaining_cands = remaining_cands.difference({a, b})
                 continue
-            elif {a, b}.difference(remaining_candidates):
+            elif {a, b}.difference(remaining_cands):
                 continue
-            to_search = a if a in remaining_candidates else b
-            remaining_candidates.remove(to_search)
+            to_search = a if a in remaining_cands else b
+            remaining_cands.remove(to_search)
             self._add_the_site(to_search)
 
-        while remaining_candidates:
-            to_search = remaining_candidates.pop()
+        while remaining_cands:
+            to_search = remaining_cands.pop()
             self._add_the_site(to_search)
         filename_plan = util.get_dump_filename(
             "plan-" + self.city, "-".join(self.interest_list), ext="csv"
@@ -156,7 +156,7 @@ class DistanceMatrix(object):
         dist_mat = self.data_matrix.values
         min_day, min_duration = -1, DistanceClient.max_transit_time
         for i, day_plan in enumerate(self.plans_):
-            if len(day_plan) > self.max_visits_per_day:
+            if len(day_plan) >= self.max_visits_per_day:
                 continue
             current_min = min([dist_mat[site, p] for p in day_plan])
             if current_min < min_duration:
@@ -166,7 +166,6 @@ class DistanceMatrix(object):
             self.plans_[min_day].add(site)
 
 if __name__ == "__main__":
-
     # python pybooking/distance_mat.py Paris outdoor_activity,museum 3
     city0 = sys.argv[1]
     interest_list0 = sys.argv[2].split(",")

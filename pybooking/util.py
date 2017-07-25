@@ -3,13 +3,24 @@ from os import path
 import pandas as pd
 import googlemaps
 
-OUTPUT_DIR = path.join(path.dirname(__file__), "..", "output")
+BASE_DIR = path.dirname(__file__)
+OUTPUT_DIR = path.join(BASE_DIR, "..", "output")
+KEYS_DIR = path.join(BASE_DIR, "..", "keys")
 
 
-class APIKeys(object):
-    geocode = "AIzaSyBmkF_p89N8DjBO77oJ-QOUFebB3rQwG30"
-    place = "AIzaSyDqUsNug8hrxQyTyk14y1euWlq5SFZGtRs"
-    distance = "AIzaSyDqUsNug8hrxQyTyk14y1euWlq5SFZGtRs"
+class APIKey(object):
+
+    @classmethod
+    def from_file(cls, filename):
+        df = pd.read_csv(path.join(KEYS_DIR, filename), header=0, index_col=0)
+        series = df['key']
+        cls.geocode = series["geocode"]
+        cls.place = series["place"]
+        cls.distance = series["distance"]
+        return cls
+
+
+APIKeys = APIKey.from_file("api_key1.csv")
 
 
 class GeoClient(object):
