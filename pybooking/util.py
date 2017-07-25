@@ -1,5 +1,7 @@
 from os import path
 
+import pandas as pd
+
 
 OUTPUT_DIR = path.join(path.dirname(__file__), "..", "output")
 
@@ -17,3 +19,10 @@ def get_coordinates(info):
 
 def get_dump_filename(city, interest, ext="json"):
     return path.join(OUTPUT_DIR, "{}_{}.{}".format(city, interest, ext))
+
+
+def read_csv_city_interest(city, interest, sort_by="rating", n_largest=10):
+    df = pd.read_csv(
+        get_dump_filename(city, interest, "csv"), index_col='name'
+    )
+    return df.sort_values(sort_by, ascending=False).iloc[:n_largest]
