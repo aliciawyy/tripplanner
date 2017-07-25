@@ -43,6 +43,8 @@ class PlaceClient(object):
                 res["photo_ref"] = photos[0]["photo_reference"]
             place_types = info.get("types", None)
             if place_types:
+                place_types = set(place_types)
+                place_types.discard('point_of_interest')
                 res["place_types"] = "|".join(place_types)
             name = info["name"].encode('utf-8').strip()
             place_dict[name] = res
