@@ -37,7 +37,7 @@ namespace BookingWebApp.Controllers
 			Ultility.RunCMD("../../pybooking/gmap.py", $"{cityName} {place}");
 			string text = System.IO.File.ReadAllText(@"../../output/"+$"{cityName}_{place}.json");
             dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(text);
-            var list = GetActivityFromData(data, 3);
+            var list = GetActivityFromDynamicObject(data, 3);
             var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(list);
             return new ContentResult { Content = jsonText, ContentType = "application/json", ContentEncoding= System.Text.Encoding.UTF8 };
 		}
@@ -51,10 +51,23 @@ namespace BookingWebApp.Controllers
 		public ContentResult GetPlans(string cityName, string places, int duration)
 		{
             //currently hard coded.
-            var plan = GetPlan(cityName, places.Split(','), duration);
+            var activity = GetPlanActivity(cityName, places, duration);
+            var plan = GetDaysFromActivities(activity);
             return Ultility.GetJsonContent(plan);
 		}
 
+        public Activity[] GetPlanActivity(string cityName, string place, int number)
+        {
+            var placeFileName = place.Replace(',', '-');
+			//python pybooking/distance_mat.py Paris outdoor_activity,museum
+			if (!System.IO.File.Exists(@"../../output/" + $"plan-{cityName}_{placeFileName}.csv"))
+			{
+                Ultility.RunCMD("../../pybooking/distance_mat.py", $"{cityName} {place} {number}");
+			}
+
+            var list = GetActivityFromCSV(@"../../output/" + $"plan-{cityName}_{placeFileName}.csv", 0).ToArray();
+			return list;
+		}
         public Activity[] GetActivities(string cityName, string place, int number)
         {
             if (string.IsNullOrEmpty(cityName) || string.IsNullOrEmpty((place))) return null;
@@ -65,7 +78,7 @@ namespace BookingWebApp.Controllers
 			string text = System.IO.File.ReadAllText(@"../../output/" + $"{cityName}_{place}.json");
 
 			dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(text);
-			var list = GetActivityFromData(data, number);
+			var list = GetActivityFromDynamicObject(data, number);
             return list;
 		}
 
@@ -77,56 +90,72 @@ namespace BookingWebApp.Controllers
 				Ultility.RunCMD("../../pybooking/gmap.py", $"{cityName} {place}");
 			}
 
-			var list = GetActivityFromCSV(@"../../output/" + $"{cityName}_{place}.csv", number);
+            var list = GetActivityFromCSV(@"../../output/" + $"{cityName}_{place}.csv", number).ToArray();
 			return list;
 		}
 
-        public Day[] GetPlan(string cityName, string[] place, int duration)
+        public List<Day> GetDaysFromActivities(Activity[] activities)
         {
-            const int interestPerDay = 3;
-            var activities = GetActivitiesCSV(cityName, place[0], duration * interestPerDay);
-            var plan = new Day[duration];
-            for (int i = 0; i < duration; i++)
-            {
-                var day = new Day();
-                day.NumberOfActivity = interestPerDay;
-                day.Activities = activities.Skip(i * interestPerDay).Take(interestPerDay).ToList();
-                plan[i] = day;
+            int day = 0;
+            var plan = new List<Day>();
+            while (activities.Any(d => d.Day == day)){
+                var dayPlan = new Day();
+                dayPlan.Activities = activities.Where(d => d.Day == day).ToList();
+                dayPlan.NumberOfActivity = dayPlan.Activities.Count;
+                plan.Add(dayPlan);
+                day++;
             }
             return plan;
         }
 
 
-        public Activity[] GetActivityFromCSV(string path, int number)
+        public List<Activity> GetActivityFromCSV(string path, int number)
         {
-			var list = new Activity[number];
-
+			var list = new List<Activity>();
+            if (number == 0) number = 1000;
 			using (Microsoft.VisualBasic.FileIO.TextFieldParser parser = new TextFieldParser(path,Encoding.UTF8))
 			{
 				parser.TextFieldType = FieldType.Delimited;
 				parser.SetDelimiters(",");
-                parser.ReadFields();
+                var headers = parser.ReadFields();
+                int interestColumn=0, nameColumn=0, ratingColumn=0, photoColumn=0, typeColumn=0, xColumn=0, yColumn=0, idColumn=0, dayColumn=0;
+                for (int i = 0; i < headers.Count(); i++){
+                    switch(headers[i]){
+                        case "interest": interestColumn = i;break;
+                        case "name": nameColumn = i;break;
+                        case "rating": ratingColumn = i;break;
+                        case "photo_ref": photoColumn = i;break;
+                        case "y": yColumn = i;break;
+                        case "x":xColumn = i;break;
+                        case "id":idColumn = i;break;
+                        case "day_plan":dayColumn = i;break;
+                    }                   
+                }
+				//interest,name,rating,photo_ref,place_types,y,x,id,transit_time,day_plan
+
 				//name  rating  photo_ref   place_types y   x   id
-				for (int i = 0; (i < number && !parser.EndOfData); i++)
+
+				for (int i = 0; (i < number && !parser.EndOfData && i<number); i++)
 				{
 					string[] fields = parser.ReadFields();
 
-					var activity = new Activity
-					{
-						Name = fields[0],
-						Rating = double.Parse(fields[1]),
-						ImageUrl = $"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&photoreference={fields[2]}&key=AIzaSyDqUsNug8hrxQyTyk14y1euWlq5SFZGtRs",
-						Longitude = fields[4],
-                        Latitude = fields[5],
-                        Type = fields[3],
-                        Id = fields[6]
+                    var activity = new Activity
+                    {
+                        Name = fields[nameColumn],
+                        Rating = double.Parse(fields[ratingColumn]),
+                        ImageUrl = $"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&photoreference={fields[photoColumn]}&key=AIzaSyDqUsNug8hrxQyTyk14y1euWlq5SFZGtRs",
+                        Longitude = fields[yColumn],
+                        Latitude = fields[xColumn],
+                        Type = fields[interestColumn],
+                        Id = fields[idColumn],
+                        Day = int.Parse(fields[dayColumn])
 					};
-					list[i] = activity;
+                    list.Add(activity);
 				}
 			}
             return list;
         }
-        public Activity[] GetActivityFromData(dynamic data, int number)
+        public Activity[] GetActivityFromDynamicObject(dynamic data, int number)
         {
             var list = new Activity[number];
             for (int i = 0; i < number;i++)

@@ -13,5 +13,6 @@ namespace BookingWebApp.Models
         public double Rating { get; set; }
         public string Name { get; set; }
         public string Id { get; set; }
+        public int Day { get; set; }
     }
 }
