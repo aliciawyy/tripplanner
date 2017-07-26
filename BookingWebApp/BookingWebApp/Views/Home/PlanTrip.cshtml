@@ -26,20 +26,18 @@
 			
             <input type="hidden" name="duration" value="3"/>
 			<label>Interests</label>
-			<p>Don't be shy, pick as many as you like.</p>
-			<label class="btn">
-				<input type="checkbox" name="places" id="options" value="museum" autocomplete="off" checked>Museums
-			</label>
-			<label class="btn">
-				<input type="checkbox" name="places" id="option2" autocomplete="off"> Outdoor activities
-			</label>
-			<label class="btn">
-				<input type="checkbox" name="places" id="option3" autocomplete="off"> Nightlife
-			</label>
-			<label class="btn">
-				<input type="checkbox" name="places" id="option4" autocomplete="off"> Shopping
-			</label>
-
+            <p>Don't be shy, pick as many as you like.</p>
+            <div class="options">
+            <label class="btn i_museum_input" data-interest="museum">
+                <input type="checkbox" name="places[]"  value="museum" autocomplete="off" >Museums
+            </label>
+            <label class="btn i_spa_input" data-interest="spa">
+                <input type="checkbox" name="places[]"  value="spa"  autocomplete="off" > Relaxation
+            </label>
+            <label class="btn i_shopping_input" data-interest="shopping_mall">
+                <input type="checkbox" name="places[]"  value="shopping_mall" autocomplete="off" >Shopping
+            </label>
+            </div>
 			<input type="submit" text="Create a Plan">
 		</form>
 	</div>

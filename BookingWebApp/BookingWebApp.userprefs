@@ -1,8 +1,8 @@
 ﻿<Properties StartupConfiguration="{7A41EEF4-09E4-40B5-ACBA-44F28C06834B}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="BookingWebApp/dist/map.html">
+  <MonoDevelop.Ide.Workbench ActiveDocument="BookingWebApp/Views/Home/PlanTrip.cshtml">
     <Files>
-      <File FileName="BookingWebApp/dist/index.html" Line="31" Column="21" />
-      <File FileName="BookingWebApp/dist/map.html" Line="1" Column="1" />
+      <File FileName="BookingWebApp/Ultility.cs" Line="22" Column="22" />
+      <File FileName="BookingWebApp/Views/Home/PlanTrip.cshtml" Line="29" Column="4" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

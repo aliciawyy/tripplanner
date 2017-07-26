@@ -35,11 +35,28 @@
               }
           }
       };
+      var getArrayParameter = function getArrayParameter(nameOfParam){
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+              filteredList = sPageURL.split('&');
+
+        // an object to store arrays
+        var objArr = {} ;
+
+        // the below loop is obvious... we just remove the [] and +.. and split into pair of key and value.. and store as an array...
+        for (var i=0, l=filteredList.length; i <l; i +=1 ) {
+          var param = decodeURIComponent(filteredList[i].replace("[]","")).replace(/\+/g," ") ;
+          var pair = param.split("=") ;
+          if(!objArr[pair[0]]) {  objArr[pair[0]] = [] ;}
+          objArr[pair[0]].push(pair[1]);
+        }
+
+        return objArr[nameOfParam].join();
+      }
       // This example requires the Places library. Include the libraries=places
       // parameter when you first load the API. For example:
       var map;
       var city = getUrlParameter('city');
-      var interest = getUrlParameter('places');
+      var interest = getArrayParameter('places');
       var duration = getUrlParameter('duration');
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
@@ -82,9 +99,18 @@
           url: '/home/GetPlans',
           data: 'cityName='+cityName+'&places='+interest+'&duration='+duration,
           success: function( data ) {
+            var str = ''
             for (day=0;day<data.length;day++)
-            for (i=0;i<data[day].NumberOfActivity;i++)
-            addPlace(data[day].Activities[i].Id);
+            {
+                str+="<div class='day-activity'>Day "+(day+1)+" Number Of Activity "+data[day].NumberOfActivity;
+                for (i=0;i<data[day].NumberOfActivity;i++)
+                {
+                  addPlace(data[day].Activities[i].Id);
+                  str+="<div class='activity'>"+data[day].Activities[i].Name+"<div>";
+                }
+                str+="</div>";
+            }
+            $("#landmark").html(str);
           }
         });
       }
@@ -112,22 +138,9 @@
     </script>
   </head>
   <body>
-    <div class="landmark">
-                  <div class="icons">
-                      <span class="trip-day">2</span>
-                      <span class="i_shop"></span>
-                  </div>
-                  <div class="landmark-content">
-                      <span class="title">Market</span>
-                      <!-- <span class="price">$20</span> -->
-                      <span class="open-hours">Open  09:00–17:00</span>
-                  </div>
-                  <div class="control-icons">
-                      <span class="i_del del"></span>
-                      <span class="i_arrow_up up"></span>
-                      <span class="i_arrow_down down"></span>
-                  </div>
-            </div>
+    <div class="landmark" id="landmark">
+                  
+    </div>
     <div id="map"></div>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYtV0LtK9nxpMXevzNlZngmHNV11e8AkI&libraries=places&callback=initMap">
