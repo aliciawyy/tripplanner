@@ -34,7 +34,7 @@ namespace BookingWebApp.Controllers
 			//return Content(System.IO.File.ReadAllText(@"./dist/index.html"));
 			return View(@"map");
 		}
-        public JsonResult Index()
+        public ActionResult Index()
         {
             var mvcName = typeof(Controller).Assembly.GetName();
             var isMono = Type.GetType("Mono.Runtime") != null;
@@ -42,11 +42,7 @@ namespace BookingWebApp.Controllers
             ViewData["Version"] = mvcName.Version.Major + "." + mvcName.Version.Minor;
             ViewData["Runtime"] = isMono ? "Mono" : ".NET";
 
-			return new JsonResult()
-			{
-				Data = new { errMsg = "test" },
-                JsonRequestBehavior = JsonRequestBehavior.AllowGet 
-            };
+            return RedirectToAction("PlanTripView");
         }
 
         public ContentResult RunJson(string cityName, string place)

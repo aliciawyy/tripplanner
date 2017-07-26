@@ -9,8 +9,10 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.js"></script>
 	<!-- <script src="material-datetime-picker.js" charset="utf-8"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>  
-     
-<link href="/dist/style.css" rel="stylesheet"></head>
+     <script   src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"   integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="   crossorigin="anonymous"></script>
+<link href="/dist/style.css" rel="stylesheet">
+		<link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+	</head>
 <body>
 <div class="page">
 	<div class="form-container">
@@ -20,11 +22,11 @@
 			<label>Destination</label>
 			<input type="text"  name="city">
 			<label>Check-in</label>
-			<input type="text"  class="datepicker" name="check-in">
+			<input type="text"  class="datepicker" name="check-in" id="check-in">
 			<label>Check-out</label>
-			<input type="text"  class="datepicker" name="check-out">
+			<input type="text"  class="datepicker" name="check-out" id="check-out">
 			
-            <input type="hidden" name="duration" value="3"/>
+            <input type="hidden" name="duration" id="duration" value="3"/>
 			<label>Interests</label>
             <p>Don't be shy, pick as many as you like.</p>
             <div class="options">
@@ -43,5 +45,65 @@
 	</div>
 </div>
   <div id="app"></div>
-<script type="text/javascript" src="bundle.js"></script></body>
+<script type="text/javascript">
+			function parseDate(str) {
+    var mdy = str.split('/');
+    return new Date(mdy[2], mdy[0]-1, mdy[1]);
+}
+
+function daydiff(first, second) {
+    return Math.round((second-first)/(1000*60*60*24));
+}
+			function ReCalculate()
+			{
+                var fromDate = parseDate($("#check-in").val());
+			    var toDate = parseDate($("#check-out").val());
+			    $("#duration").val(daydiff(fromDate,toDate)+1);
+			}
+$( function() {
+    $( ".datepicker" ).datepicker({onSelect:function(){ReCalculate();}}
+			);
+  } );
+			var checkboxes = document.querySelectorAll(".btn");
+
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = checkboxes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var checkbox = _step2.value;
+
+            checkbox.addEventListener("click", checkInterest);
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
+		function checkInterest(event) {
+        event.stopPropagation();
+        var el = this;
+        var checkbox = el.firstElementChild;
+
+        if (checkbox.checked) {
+            checkbox.checked = false;
+            el.classList.remove("checked");
+        } else {
+            checkbox.checked = true;
+            el.classList.add("checked");
+        }
+        return;
+    }</script>
+	</body>
 </html>

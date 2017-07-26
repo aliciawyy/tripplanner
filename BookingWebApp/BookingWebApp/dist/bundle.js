@@ -121,7 +121,7 @@
 		console.log(xhr.responseText);
 	});
 
-	function initMap() {
+	/*function initMap() {
 		map = new google.maps.Map(document.querySelector('.page'), {
 			center: { lat: 48.8566, lng: 2.3522 },
 			zoom: 15
@@ -155,7 +155,7 @@
 				});
 			}
 		});
-	}
+	}*/
 	//my key AIzaSyDJe89WAZmJd1aRIUdmlAZBhG5JRx6Np40 
 	var checkboxes = document.querySelectorAll(".btn");
 
