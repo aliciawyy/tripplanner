@@ -6,14 +6,22 @@ import pandas as pd
 import util
 from distance_mat import DistanceClient
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("place")
+
 
 class PlaceClient(object):
     def __init__(self):
         self.client_place = googlemaps.Client(util.APIKeys.place)
-        self.default_radius = 2000  # meters
+        self.default_radius = 4000  # meters
         self.redundant_types = {'point_of_interest', 'establishment'}
 
     def places_nearby(self, city, interest):
+        if "," in interest:
+            interests = interest.split(",")
+            for interest in interests:
+                self.places_nearby(city, interest)
         location = util.GeoClient.get_location(city)
         result = self.client_place.places(
             interest, location=location, radius=self.default_radius
@@ -24,7 +32,10 @@ class PlaceClient(object):
         filename_json = util.get_dump_filename(city, interest)
         json.dump(all_places, open(filename_json, "w"))
         filename_csv = util.get_dump_filename(city, interest, "csv")
-        self.extract_info_to_csv(location, all_places, filename_csv)
+        df = self.extract_info_to_csv(location, all_places, filename_csv)
+        log.info("\nFound sites for interest {} in city {}:\n{}"
+                 "\n".format(interest, city, df))
+        return df
 
     def extract_info_to_csv(self, city_location, all_places, filename_csv):
         place_dict = {}
@@ -40,6 +51,7 @@ class PlaceClient(object):
         df = df[df["transit_time"] < dist_client.max_transit_time]
         df = df.sort_values("rating", ascending=False)
         df.to_csv(filename_csv, index_label="name")
+        return df
 
     def _extract_one_info(self, info):
         res = {"id": info["place_id"]}
