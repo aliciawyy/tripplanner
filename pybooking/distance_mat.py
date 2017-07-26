@@ -108,11 +108,22 @@ class CityAndInterests(object):
             "{}-{}".format("-".join(self.interest_list), self.n_days), "csv"
         )
 
-    def get_aggregated_interest_sites(self):
-        all_sites = {
+    def get_all_sites(self):
+        return {
             interest: util.read_csv_city_interest(self.city, interest)
             for interest in self.interest_list
         }
+
+    def get_aggregated_interest_sites(self):
+        try:
+            all_sites = self.get_all_sites()
+        except IOError:
+            from gmap import PlaceClient
+            place_cl = PlaceClient()
+            _ = [place_cl.places_nearby(self.city, interest) for
+                 interest in self.interest_list]
+            all_sites = self.get_all_sites()
+
         weights_by_total_popularity = {
             k: v["rating"].sum() for k, v in all_sites.items()
         }
