@@ -6,6 +6,10 @@ import googlemaps
 
 import util
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("dist")
+
 
 class DistanceClient(object):
     max_transit_time = 2 * 60 * 60  # seconds
@@ -51,9 +55,16 @@ class DistanceClient(object):
     def get_the_plan(self, city, interest_list):
         dist_matrix = DistanceMatrix(city, interest_list, self.n_days)
         _ = self.get_min_duration_matrix(city, interest_list)
-
+        df_result = dist_matrix.plan.sort_values("day_plan")
         plans = dist_matrix.plan_the_trip()
-        print plans
+        log.critical(
+            "\nGet the plan to visit '{}' according to your interests {}"
+            "during {} days:\n{}\n\n{}".format(
+                city, interest_list, self.n_days, plans,
+                df_result[["name", "day_plan"]]
+            )
+        )
+        return plans
 
     def _get_duration_safe(self, q):
         duration = q.get("duration", {})
@@ -142,10 +153,9 @@ class DistanceMatrix(CityAndInterests):
     def plan_the_trip(self):
         self.plans_ = []
         df_dist = self.full_dist_matrix.copy()
-        min_pairs = df_dist.idxmin()
-        print self.full_dist_matrix
-        min_pairs.index = min_pairs.index.astype(int)
-        print min_pairs
+        log.info("Full distance matrix:\n{}\n\n".format(
+            self.full_dist_matrix
+        ))
         rest_candidates = set(range(self.n_interests))
         for i in range(self.n_days):
             col = df_dist.min().idxmin()
