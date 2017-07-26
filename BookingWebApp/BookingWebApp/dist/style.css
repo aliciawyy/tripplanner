@@ -1,22 +1,12 @@
-Skip to content
-This repository
-Search
-Pull requests
-Issues
-Marketplace
-Gist
- @vic278
- Sign out
- Watch 21
-  Star 150
- Fork 49 ripjar/material-datetime-picker
- Code  Issues 12  Pull requests 5  Projects 0  Wiki Insights 
-Branch: master Find file Copy pathmaterial-datetime-picker/dist/material-datetime-picker.css
-904f5da  on Apr 28
-@joews joews v2.4.0
-1 contributor
-RawBlameHistory     
-549 lines (493 sloc)  20.2 KB
+
+.page .form-container {
+  float: left;
+  margin: 1% 4%;
+}
+body .day {
+    min-height: 330px;
+}
+
 .c-scrim {
   position: fixed;
   left: 0;
@@ -592,7 +582,7 @@ body {
     height: 100%;
     min-width: 1280px;
     width: 100%;
-    background: url("https://static.dezeen.com/uploads/2016/11/gateway-in-amsterdam-big-and-barcode-architecture-news_dezeen_herob.jpg") no-repeat top left;
+    background: url("./../assets/gateway-in-amsterdam-big-and-barcode-architecture-news_dezeen_herob.jpg") no-repeat top left;
     background-size: cover; }
     body .page .form-container {
       height: 100%;
@@ -601,6 +591,37 @@ body {
       background-color: #FBBD00;
       margin: 1% 10%;
       padding: 16px; }
+      body .page .form-container .drag {
+        width: 230px;
+        height: 32px;
+        border: #666 dotted 1px;
+        border-radius: 3px;
+        text-align: center;
+        margin: 10px; }
+      body .page .form-container .big-blue {
+        height: 44px;
+        width: 232px;
+        border-radius: 6px;
+        background-color: #0077CC;
+        display: inline-block;
+        color: #fff;
+        line-height: 44px;
+        font-size: 20px;
+        letter-spacing: -1px;
+        text-align: center;
+        text-decoration: none;
+        margin: 10px; }
+      body .page .form-container .i_back {
+        width: 20px;
+        height: 16px;
+        background: url("./../assets/i_back.png") no-repeat center center;
+        float: left;
+        margin-right: 5px; }
+      body .page .form-container .back-to-interest {
+        font-size: 12px;
+        line-height: 14px;
+        color: #000;
+        text-decoration: none; }
     body .page input {
       height: 26px;
       width: 258px;
@@ -647,17 +668,26 @@ body {
       height: 32px;
       width: 262px;
       cursor: pointer;
-      line-height: 33px;
-      background-image: url(5e174688aecd0482b717dc67306d2c97.png);
-      background-position: 10px center;
-      background-repeat: no-repeat;
+      line-height: 35px;
       -webkit-border-radius: 2px;
       -moz-border-radius: 2px;
       -ms-border-radius: 2px;
       -o-border-radius: 2px;
       border-radius: 2px;
-      text-indent: 30px;
+      text-indent: 35px;
       vertical-align: center; }
+      body .page .btn.i_spa_input {
+        background-image: url("./../assets/i_relax.png");
+        background-position: 10px center;
+        background-repeat: no-repeat; }
+      body .page .btn.i_shopping_input {
+        background-image: url("./../assets/i_shop.png");
+        background-position: 10px center;
+        background-repeat: no-repeat; }
+      body .page .btn.i_museum_input {
+        background-image: url("./../assets/i_museum.png");
+        background-position: 10px center;
+        background-repeat: no-repeat; }
       body .page .btn input {
         -webkit-appearance: none;
         width: 1px;
@@ -672,5 +702,98 @@ body {
   body .btn.checked {
     color: #fff;
     background-color: #003580; }
+  body .day {
+    padding: 8px; }
+    body .day .day-header {
+      width: 216px;
+      height: 16px;
+      border-radius: 4px;
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 8px; }
+      body .day .day-header h1 {
+        height: 21px;
+        width: 100px;
+        color: #FFFFFF;
+        font-size: 18px;
+        font-weight: bold;
+        line-height: 18px;
+        display: inline-block;
+        margin: 0px; }
+      body .day .day-header .daily-duration {
+        color: #FFFFFF;
+        font-size: 13px;
+        float: right;
+        line-height: 18px; }
+    body .day .landmark {
+      height: 80px;
+      width: 216px;
+      border-radius: 4px;
+      background-color: #FFFFFF;
+      margin: 10px 0;
+      padding: 5px; }
+      body .day .landmark .icons {
+        width: 24px;
+        float: left; }
+        body .day .landmark .icons .trip-day {
+          margin-top: 8px;
+          width: 12px;
+          height: 12px;
+          border-radius: 4px;
+          background-color: #003580;
+          display: inline-block;
+          color: #fff;
+          line-height: 14px;
+          text-align: center;
+          padding: 6px 6px;
+          margin-bottom: 10px; }
+        body .day .landmark .icons .i_museum {
+          width: 24px;
+          height: 24px; }
+        body .day .landmark .icons .i_shop {
+          width: 24px;
+          height: 24px;
+          background: url("./../assets/i_shop.png") no-repeat center center;
+          float: left; }
+        body .day .landmark .icons .i_museum {
+          width: 24px;
+          height: 24px;
+          background: url("./../assets/i_museum.png") no-repeat center center;
+          float: left; }
+      body .day .landmark .landmark-content {
+        width: 140px;
+        float: left;
+        padding: 10px; }
+        body .day .landmark .landmark-content .title {
+          line-height: 14px;
+          display: block;
+          height: 19px;
+          color: #000000;
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 19px;
+          margin-bottom: 10px; }
+        body .day .landmark .landmark-content .price, body .day .landmark .landmark-content .open-hours {
+          display: block;
+          height: 14px;
+          width: 180px;
+          color: #666666;
+          font-size: 12px;
+          line-height: 14px;
+          margin-bottom: 10px; }
+      body .day .landmark .control-icons {
+        width: 12px;
+        float: right; }
+        body .day .landmark .control-icons .i_del, body .day .landmark .control-icons .i_arrow_up, body .day .landmark .control-icons .i_arrow_down {
+          height: 12px;
+          width: 12px;
+          float: right; }
+        body .day .landmark .control-icons .i_del {
+          background: url("./../assets/i_delete.png") no-repeat center center;
+          margin-bottom: 3px; }
+        body .day .landmark .control-icons .i_arrow_up {
+          background: url("./../assets/i_arrow_up.png") no-repeat center center; }
+        body .day .landmark .control-icons .i_arrow_down {
+          background: url("./../assets/i_arrow_down.png") no-repeat center center; }
 
 /********** import*****/
+
