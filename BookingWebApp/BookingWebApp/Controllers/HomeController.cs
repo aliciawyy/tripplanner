@@ -75,7 +75,7 @@ namespace BookingWebApp.Controllers
 			//python pybooking/distance_mat.py Paris outdoor_activity,museum
             if (!System.IO.File.Exists(@"../../output/" + $"plan-{cityName}_{placeFileName}-{number}.csv"))
 			{
-                Ultility.RunCMD("../../pybooking/distance_mat.py", $"{cityName} {place} {number}");
+                Ultility.RunCMD("../../pybooking/distance_mat.py", $"\"{cityName}\" {place} {number}");
 			}
 
             var list = GetActivityFromCSV(@"../../output/" + $"plan-{cityName}_{placeFileName}-{number}.csv", 0).ToArray();
@@ -86,7 +86,7 @@ namespace BookingWebApp.Controllers
             if (string.IsNullOrEmpty(cityName) || string.IsNullOrEmpty((place))) return null;
             if (!System.IO.File.Exists(@"../../output/" + $"{cityName}_{place}.json"))
             {
-                Ultility.RunCMD("../../pybooking/gmap.py", $"{cityName} {place}");
+                Ultility.RunCMD("../../pybooking/gmap.py", $"\"{cityName}\" {place}");
 			}
 			string text = System.IO.File.ReadAllText(@"../../output/" + $"{cityName}_{place}.json");
 
@@ -100,7 +100,7 @@ namespace BookingWebApp.Controllers
 			if (string.IsNullOrEmpty(cityName) || string.IsNullOrEmpty((place))) return null;
             if (!System.IO.File.Exists(@"../../output/" + $"{cityName}_{place}.csv"))
 			{
-				Ultility.RunCMD("../../pybooking/gmap.py", $"{cityName} {place}");
+				Ultility.RunCMD("../../pybooking/gmap.py", $"\"{cityName}\" {place}");
 			}
 
             var list = GetActivityFromCSV(@"../../output/" + $"{cityName}_{place}.csv", number).ToArray();
