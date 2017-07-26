@@ -6,6 +6,10 @@ import googlemaps
 
 import util
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger("dist")
+
 
 class DistanceClient(object):
     max_transit_time = 2 * 60 * 60  # seconds
@@ -51,9 +55,16 @@ class DistanceClient(object):
     def get_the_plan(self, city, interest_list):
         dist_matrix = DistanceMatrix(city, interest_list, self.n_days)
         _ = self.get_min_duration_matrix(city, interest_list)
-
         plans = dist_matrix.plan_the_trip()
-        print plans
+        df_result = dist_matrix.plan.sort_values("day_plan")
+        log.critical(
+            "\nGet the plan to visit '{}' according to your interests {}"
+            "during {} days:\n{}\n\n{}".format(
+                city, interest_list, self.n_days, plans,
+                df_result[["name", "day_plan"]]
+            )
+        )
+        return plans
 
     def _get_duration_safe(self, q):
         duration = q.get("duration", {})
@@ -115,6 +126,7 @@ class CityAndInterests(object):
             {k: all_sites[k].iloc[:n] for k, n
              in weights_by_total_popularity.items()}, names=["interest"]
         ).reset_index()
+        result = result.sort_values("rating", ascending=False)
         result.to_csv(self.info_filename)
         return result
 
@@ -140,22 +152,35 @@ class DistanceMatrix(CityAndInterests):
         return len(self.distance_matrix)
 
     def plan_the_trip(self):
+        log.info("\nAll the selected sites according to users' interests "
+                 "{}:\n{}\n".format(self.interest_list, self.info))
+        interests = self.info["interest"]
+
+        def other_interests(series):
+            current_interest = interests[series.name]
+            other_interests0 = \
+                series[interests[series.index] != current_interest]
+            if len(other_interests0) == 0:
+                other_interests0 = series
+            return other_interests0
+
         self.plans_ = []
+
         df_dist = self.full_dist_matrix.copy()
-        min_pairs = df_dist.idxmin()
-        print self.full_dist_matrix
-        min_pairs.index = min_pairs.index.astype(int)
-        print min_pairs
+        log.info("Full distance matrix:\n{}\n\n{}".format(
+            self.full_dist_matrix, interests
+        ))
         rest_candidates = set(range(self.n_interests))
         for i in range(self.n_days):
-            col = df_dist.min().idxmin()
-            row = df_dist[col].idxmin()
+            col = df_dist.apply(lambda p: other_interests(p).min()).idxmin()
+            row = other_interests(df_dist[col]).idxmin()
             self.plans_.append({row, col})
             rest_candidates = rest_candidates.difference({row, col})
             df_dist = df_dist.drop([row, col], 0).drop([row, col], 1)
         while rest_candidates:
             to_search = rest_candidates.pop()
             self._add_the_site(to_search)
+        self.plans_ = sorted(self.plans_, key=min)
         df = self.info.copy()
         df["day_plan"] = -1
         for i, group in enumerate(self.plans_):
