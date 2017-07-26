@@ -131,6 +131,8 @@ class CityAndInterests(object):
             "".format(self.city, weights_by_total_popularity)
         )
         total_popularity = sum(weights_by_total_popularity.values())
+        # Allocate number of sites for each interest according to
+        # its popularity of the given city
         n_sites_total = self.n_days * self.visits_per_day
         weights_by_total_popularity = {
            k: max(int(v / total_popularity * n_sites_total), 1)
@@ -190,6 +192,8 @@ class DistanceMatrix(CityAndInterests):
             self.full_dist_matrix, interests
         ))
         rest_candidates = set(range(self.n_interests))
+
+        # Match different interests nearby on priority
         for i in range(self.n_days):
             col = df_dist.apply(lambda p: other_interests(p).min()).idxmin()
             row = other_interests(df_dist[col]).idxmin()
@@ -199,6 +203,8 @@ class DistanceMatrix(CityAndInterests):
         while rest_candidates:
             to_search = rest_candidates.pop()
             self._add_the_site(to_search)
+
+        # Visit most popular attractions first
         self.plans_ = sorted(self.plans_, key=min)
         df = self.info.copy()
         df["day_plan"] = -1
