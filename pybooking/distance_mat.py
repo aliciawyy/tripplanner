@@ -32,7 +32,6 @@ class DistanceClient(object):
         df0_list = map(pd.DataFrame, duration_matrices)
         df0 = np.minimum(df0_list[0], df0_list[1]).T
         df0.to_csv(filename)
-        print df0
 
     def extract_duration_matrix(self, coordinates, mode="walking"):
         result = []
@@ -61,7 +60,7 @@ class DistanceClient(object):
             "\nGet the plan to visit '{}' according to your interests {}"
             "during {} days:\n{}\n\n{}".format(
                 city, interest_list, self.n_days, plans,
-                df_result[["name", "rating", "day_plan"]]
+                df_result[["name", "rating", "place_types", "day_plan"]]
             )
         )
         return plans
@@ -127,12 +126,17 @@ class CityAndInterests(object):
         weights_by_total_popularity = {
             k: v["rating"].sum() for k, v in all_sites.items()
         }
+        log.info(
+            "Total popularity of each interest in {}:\n{}"
+            "".format(self.city, weights_by_total_popularity)
+        )
         total_popularity = sum(weights_by_total_popularity.values())
         n_sites_total = self.n_days * self.visits_per_day
         weights_by_total_popularity = {
            k: max(int(v / total_popularity * n_sites_total), 1)
            for k, v in weights_by_total_popularity.items()
         }
+
         result = pd.concat(
             {k: all_sites[k].iloc[:n] for k, n
              in weights_by_total_popularity.items()}, names=["interest"]
@@ -164,8 +168,11 @@ class DistanceMatrix(CityAndInterests):
         return len(self.distance_matrix)
 
     def plan_the_trip(self):
-        log.info("\nAll the selected sites according to users' interests "
-                 "{}:\n{}\n".format(self.interest_list, self.info))
+        log.info(
+            "\nAll the selected sites according to users' interests "
+            "{}:\n{}\n".format(self.interest_list,
+                               self.info[["name", "rating", "place_types"]])
+        )
         interests = self.info["interest"]
 
         def other_interests(series):
