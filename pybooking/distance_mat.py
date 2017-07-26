@@ -61,7 +61,7 @@ class DistanceClient(object):
             "\nGet the plan to visit '{}' according to your interests {}"
             "during {} days:\n{}\n\n{}".format(
                 city, interest_list, self.n_days, plans,
-                df_result[["name", "day_plan"]]
+                df_result[["name", "rating", "day_plan"]]
             )
         )
         return plans
@@ -126,7 +126,8 @@ class CityAndInterests(object):
             {k: all_sites[k].iloc[:n] for k, n
              in weights_by_total_popularity.items()}, names=["interest"]
         ).reset_index()
-        result = result.sort_values("rating", ascending=False)
+        result = result.sort_values("rating", ascending=False)\
+            .set_index("interest").reset_index()
         result.to_csv(self.info_filename)
         return result
 
