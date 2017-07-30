@@ -60,7 +60,7 @@ class DistanceClient(object):
             "\nGet the plan to visit '{}' according to your interests {}"
             "during {} days:\n{}\n\n{}".format(
                 city, interest_list, self.n_days, plans,
-                df_result[["name", "rating", "place_types", "day_plan"]]
+                df_result[["name", "rating", "day_plan", "place_types"]]
             )
         )
         return plans
@@ -77,7 +77,7 @@ class CityAndInterests(object):
         self.n_days = n_days
 
         # average number of sites people can visit per day
-        self.visits_per_day = 2.5
+        self.visits_per_day = 3.5
 
         self.info_filename = self._get_filename()
         self.dist_mat_filename = self._get_filename("dist")

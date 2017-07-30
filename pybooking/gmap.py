@@ -14,17 +14,16 @@ log = logging.getLogger("place")
 class PlaceClient(object):
     def __init__(self):
         self.client_place = googlemaps.Client(util.APIKeys.place)
-        self.default_radius = 4000  # meters
         self.redundant_types = {'point_of_interest', 'establishment'}
 
-    def places_nearby(self, city, interest):
+    def places_nearby(self, city, interest, radius=4000):
         if "," in interest:
             interests = interest.split(",")
             for interest in interests:
                 self.places_nearby(city, interest)
         location = util.GeoClient.get_location(city)
         result = self.client_place.places(
-            interest, location=location, radius=self.default_radius
+            interest, location=location, radius=radius
         )
         all_places = sorted(
             result['results'], key=lambda p: p.get('rating', 2.5), reverse=True
@@ -74,5 +73,4 @@ class PlaceClient(object):
 if __name__ == "__main__":
     # python pybooking/gmap.py Paris museum
     client = PlaceClient()
-    city0, place_type0 = sys.argv[1:]
-    client.places_nearby(city0, place_type0)
+    client.places_nearby(*sys.argv[1:])

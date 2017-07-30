@@ -28,8 +28,12 @@ class GeoClient(object):
 
     @classmethod
     def get_location(cls, city):
-        result = cls.client.geocode(city)
+        result = cls.get_city_information(city)
         return get_coordinates(result[0])
+
+    @classmethod
+    def get_city_information(cls, city):
+        return cls.client.geocode(city)
 
 
 def get_coordinates(info):
